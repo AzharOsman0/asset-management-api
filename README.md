@@ -1,4 +1,4 @@
-# 📦 <h1>IT Asset Management API & CI/CD Pipeline 🚀</h1>
+#  <h1>IT Asset Management API & CI/CD Pipeline 🚀</h1>
 
 Welcome to the **IT Asset Management API & CI/CD Pipeline** project! This README will guide you through the features and functionalities of this project. It's designed to help organizations manage their IT assets efficiently and streamline the development and deployment process. Let's dive in! 🌊
 

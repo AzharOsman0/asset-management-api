@@ -1,3 +1,5 @@
+#this is CI continous integeration, its for building and testing code everytime you do a push
+
 name: CI
 
 on: #Created a github workflow, with Yaml, it pushes to my main branch and also pulls from my main branch
@@ -18,10 +20,11 @@ jobs: #Run apart of the work flow, the first job is build:
       uses: actions/checkout@v2  #this thing is an action by github it allows us check out the repos code in the virtual environment, which allows for build, test, and deploying in a 
       #clean isolated enviornment. "checking out means copying this code to the Virtuam machine (ubuntis enviornment)"
 
-    - name: Set up JDK 17  
+    - name: Set up JDK 17   #needed to run and compile java code in the virtual machine, it installs it there.
       uses: actions/setup-java@v2
       with:
         java-version: '17'
+        distribution: 'temurin'
 
     - name: Build with Maven
       run: mvn clean install

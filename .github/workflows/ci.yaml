@@ -1,0 +1,27 @@
+name: CI
+
+on: #Created a github workflow, with Yaml, it pushes to my main branch and also pulls from my main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs: #Run apart of the work flow, the first job is build:
+  build:
+
+    runs-on: ubuntu-latest #Ubuntu Latest, the virtual environment to use for running the job.
+
+    steps: # Defines a sequences of steps to be executed as part of the job. Each step is executed sequentially
+    - name: Checkout code
+      uses: actions/checkout@v2  #this thing is an action by github it allows us check out the repos code in the virtual environment, which allows for build, test, and deploying in a 
+      #clean isolated enviornment. "checking out means copying this code to the Virtuam machine (ubuntis enviornment)"
+
+    - name: Set up JDK 17  
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+
+    - name: Build with Maven
+      run: mvn clean install

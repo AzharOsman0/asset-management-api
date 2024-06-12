@@ -17,14 +17,14 @@ jobs: #Run apart of the work flow, the first job is build:
 
     steps: # Defines a sequences of steps to be executed as part of the job. Each step is executed sequentially
     - name: Checkout code
-      uses: actions/checkout@v2  #this thing is an action by github it allows us check out the repos code in the virtual environment, which allows for build, test, and deploying in a 
+      uses: actions/checkout@v3  #this thing is an action by github it allows us check out the repos code in the virtual environment, which allows for build, test, and deploying in a 
       #clean isolated enviornment. "checking out means copying this code to the Virtuam machine (ubuntis enviornment)"
 
-    - name: Set up JDK 17   #needed to run and compile java code in the virtual machine, it installs it there.
-      uses: actions/setup-java@v2
+    - name: Set up JDK 17   #needed to run and compile java code in the virtual machine, it installs it there. 
+      uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '17' #ensures the applicaiton is built and tested in this consistent enviornment to prevent environment disparancies
         distribution: 'temurin'
 
-    - name: Build with Maven
+    - name: Build with Maven #this checks for syntax errors or missing dependences that would prevent the code from compiling
       run: mvn clean install

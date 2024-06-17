@@ -1,10 +1,13 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven 3.9.7' 
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout code from the main branch
                 checkout([$class: 'GitSCM', 
                           branches: [[name: '*/main']],
                           userRemoteConfigs: [[url: 'https://github.com/AzharOsman0/asset-management-api.git', credentialsId: '6f61d0a7-5ceb-4a19-a9bd-abbc821f603e']]
@@ -18,21 +21,18 @@ pipeline {
                 PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
             }
             steps {
-                // Ensure JDK 17 is installed and configured
                 bat 'java -version'
             }
         }
         
         stage('Build with Maven') {
             steps {
-                // Clean and build the project using Maven
                 bat 'mvn clean install'
             }
         }
         
         stage('Run Unit Tests') {
             steps {
-                // Run unit tests using Maven
                 bat 'mvn test'
             }
         }
@@ -40,7 +40,6 @@ pipeline {
 
     post {
         always {
-            // Archive test results and artifacts if necessary
             junit 'target/surefire-reports/*.xml'
         }
         success {

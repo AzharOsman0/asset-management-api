@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout code from the main branch using HTTPS and PAT
+                // Checkout code from the main branch
                 checkout([$class: 'GitSCM', 
                           branches: [[name: '*/main']],
                           userRemoteConfigs: [[url: 'https://github.com/AzharOsman0/asset-management-api.git', credentialsId: '6f61d0a7-5ceb-4a19-a9bd-abbc821f603e']]
@@ -19,21 +19,21 @@ pipeline {
             }
             steps {
                 // Ensure JDK 17 is installed and configured
-                sh 'java -version'
+                bat 'java -version'
             }
         }
         
         stage('Build with Maven') {
             steps {
                 // Clean and build the project using Maven
-                sh 'mvn clean install'
+                bat 'mvn clean install'
             }
         }
         
         stage('Run Unit Tests') {
             steps {
                 // Run unit tests using Maven
-                sh 'mvn test'
+                bat 'mvn test'
             }
         }
     }

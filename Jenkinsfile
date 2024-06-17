@@ -4,10 +4,10 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout code from the main branch
+                // Checkout code from the main branch using HTTPS and PAT
                 checkout([$class: 'GitSCM', 
                           branches: [[name: '*/main']],
-                          userRemoteConfigs: [[url: 'git@github.com:AzharOsman0/asset-management-api.git']]
+                          userRemoteConfigs: [[url: 'https://github.com/AzharOsman0/asset-management-api.git', credentialsId: '6f61d0a7-5ceb-4a19-a9bd-abbc821f603e']]
                 ])
             }
         }

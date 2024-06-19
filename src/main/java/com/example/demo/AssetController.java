@@ -19,7 +19,7 @@ public class AssetController {
 
   @Autowired //This automatically injects the AssetRepository bean into the class providing an instance of AssetRepository so you can interact with the database
   private AssetRepository assetRepository;
-
+  
   @PostMapping // Post request
   public Asset registerAsset(@RequestBody Asset asset) {
     return assetRepository.save(asset);
@@ -40,6 +40,11 @@ public class AssetController {
   @GetMapping //Get Request
   public List < Asset > getAllAssets() {
     return assetRepository.findAll(); //findAll() retrives all entites from a database
+  }
+  
+  @GetMapping("/{id}") //Get Request, or else null in case ID is not in database.
+  public Asset getAssetByID(@PathVariable Long id) {
+    return assetRepository.findById(id).orElse(null); //findByID() retrives all entites from a database
   }
 
   //Returning a ResponseEntity containing an Asset object, meaning it will return a HTTP response with the updated asset data

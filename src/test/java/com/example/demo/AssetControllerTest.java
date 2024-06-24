@@ -5,15 +5,12 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
-
-
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,7 +63,7 @@ public class AssetControllerTest {
         mockMvc.perform(post("/assets")
             .contentType(MediaType.APPLICATION_JSON)
             .content(new ObjectMapper().writeValueAsString(asset))) //Serializes asset object into a Json String
-            .andExpect(status().isOk()) //Ensure the controller returns 200 ok, confirms successful request handling. Indirectly confirms deserilization
+            .andExpect(status().isCreated()) //Ensure the controller returns 200 ok, confirms successful request handling. Indirectly confirms deserilization
             .andExpect(jsonPath("$.name").value("HP Laptop")); //confirms serilization in our response and ensures save method works(DOES NOT ENSURE CORRECTNESS OF SAVE METHOD)
     }
 

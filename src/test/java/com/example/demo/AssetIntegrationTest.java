@@ -4,21 +4,17 @@ package com.example.demo;
 //You do not need a JUnit dependency import in pom.xml because it is automatically imported by Spring Boot
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.boot.test.context.SpringBootTest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.hamcrest.Matchers.hasSize;
 
 @SpringBootTest // This is not a Unit test like AssetControllerTest we don't just create mocks and inject them into AssetController for isolation
 // we are loading the full context of a spring boot applicaiton which is why we autoconfiguremockMVC as well because we just want a quick set up no mocks also Spring
@@ -49,7 +45,7 @@ public void testGetAndRegisterAsset() throws Exception{
      mockMvc.perform(post("/assets")
             .contentType(MediaType.APPLICATION_JSON)
             .content(new ObjectMapper().writeValueAsString(asset)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.name").value("HP Laptop"));
     mockMvc.perform(get("/assets/1"))
             .andExpect(status().isOk()) 

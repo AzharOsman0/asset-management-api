@@ -43,7 +43,7 @@ pipeline {
                     def uploadSpec = """{
                         "files": [{
                             "pattern": "target/*.jar",
-                            "target": "libs-release-local"
+                            "target": "assetapi-libs-release-local"
                         }]
                     }"""
                     server.upload(uploadSpec)

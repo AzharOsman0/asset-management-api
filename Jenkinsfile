@@ -43,7 +43,7 @@ pipeline {
                     def uploadSpec = """{
                         "files": [{
                             "pattern": "target/*.jar",
-                            "target": "libs-release-local/${env.ARTIFACTORY_REPO}/"
+                            "target": "libs-release-local"
                         }]
                     }"""
                     def buildInfo = server.upload spec: uploadSpec

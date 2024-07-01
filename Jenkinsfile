@@ -39,16 +39,14 @@ pipeline {
          stage('Publish to Artifactory') {
             steps {
                 script {
+                    def server = Artifactory.server 'jfrog-artifactory'
                     def uploadSpec = """{
                         "files": [{
                             "pattern": "target/*.jar",
                             "target": "libs-release-local"
                         }]
                     }"""
-                    def server = Artifactory.server 'jfrog-artifactory'
-                    buildInfo = Artifactory.newBuildInfo()
-                    buildInfo.env.capture = true
-                    server.publishBuildInfo buildInfo
+                    server.upload(uploadSpec)
                 }
             }
         }

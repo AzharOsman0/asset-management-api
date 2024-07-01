@@ -36,6 +36,21 @@ pipeline {
                 bat 'mvn test'
             }
         }
+         stage('Publish to Artifactory') {
+            steps {
+                script {
+                    def server = Artifactory.server 'jfrog-artifactory'
+                    def uploadSpec = """{
+                        "files": [{
+                            "pattern": "target/*.jar",
+                            "target": "${env.ARTIFACTORY_REPO}/"
+                        }]
+                    }"""
+                    def buildInfo = server.upload spec: uploadSpec
+                    server.publishBuildInfo buildInfo
+                }
+            }
+        }
     }
 
     post {

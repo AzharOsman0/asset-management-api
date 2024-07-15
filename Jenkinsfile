@@ -156,11 +156,12 @@ def deploy(env, repo, buildId, port) {
 }
 
 def runSmokeTests(env, port) {
+    def endpoint = "/assets/health"
     try {
         if (isUnix()) {
-            sh "curl -f http://localhost:${port}/health || exit 1"
+            sh "curl -f http://localhost:${port}${endpoint} || exit 1"
         } else {
-            bat "curl -f http://localhost:${port}/health || exit 1"
+            bat "curl -f http://localhost:${port}${endpoint} || exit 1"
         }
         echo "Smoke tests passed for ${env} environment."
     } catch (Exception e) {

@@ -74,10 +74,10 @@ public class AssetController {
   // PATH VARIABLE: We are inputting an URL, and extract the Id so we use @PathVariable
   //PUT REQUEST: Updates an entire resource with new repersentation provided by requestBody
   @PutMapping("/{id}")
-  public ResponseEntity < Asset > updateAsset(@PathVariable Long id, @RequestBody Asset assetDetails) {
+  public synchronized ResponseEntity<Asset> updateAsset(@PathVariable Long id, @RequestBody Asset assetDetails) {
     try {
       Asset asset = assetRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Asset: " + id + "Not found"));
-
+      Thread.sleep(1000);
       asset.setName(assetDetails.getName());
       asset.setDeviceType(assetDetails.getDeviceType());
       asset.setStatus(assetDetails.getStatus());

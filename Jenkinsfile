@@ -38,7 +38,19 @@ pipeline {
         
         stage('Run Unit Tests') {
             steps {
-                bat 'mvn test'
+                script {
+                    try {
+                        bat 'mvn test'
+                    } catch (Exception e) {
+                        echo 'Tests failed! Attempting to fix...'
+                        if (isUnix()) {
+                            sh 'sh fixConcurrencyBug.sh'
+                        } else {
+                            bat 'fixConcurrencyBug.bat'
+                        }
+                        bat 'mvn test'
+                    }
+                }
             }
         }
 
@@ -57,6 +69,7 @@ pipeline {
             steps {
                 script {
                     deploy('dev', env.DOCKER_HUB_REPO, env.BUILD_ID, 8081)
+                    runSmokeTests('dev', 8081)
                 }
             }
         }
@@ -65,6 +78,9 @@ pipeline {
             steps {
                 script {
                     deploy('test', env.DOCKER_HUB_REPO, env.BUILD_ID, 8082)
+                    runSmokeTests('test', 8082)
+                    runFunctionalTests('test', 8082)
+                    runRegressionTests('test', 8082)
                 }
             }
         }
@@ -73,6 +89,8 @@ pipeline {
             steps {
                 script {
                     deploy('prod', env.DOCKER_HUB_REPO, env.BUILD_ID, 8083)
+                    runSmokeTests('prod', 8083)
+                    runSanityTests('prod', 8083)
                 }
             }
         }
@@ -108,10 +126,83 @@ pipeline {
 
 def deploy(env, repo, buildId, port) {
     if (isUnix()) {
-        sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
+        sh "docker rm -f asset-management-api-${env} || true"
         sh "docker run -d --name asset-management-api-${env} -p ${port}:${port} ${repo}:${buildId}"
     } else {
-        bat "docker stop asset-management-api-${env} || exit 0 && docker rm asset-management-api-${env} || exit 0"
+        bat "docker rm -f asset-management-api-${env} || exit 0"
         bat "docker run -d --name asset-management-api-${env} -p ${port}:${port} ${repo}:${buildId}"
+    }
+}
+
+def runSmokeTests(env, port) {
+    
+    try {
+        if (isUnix()) {
+            sh "curl -f http://localhost:${port}${endpoint} || exit 1"
+        } else {
+            bat "curl -f http://localhost:${port}${endpoint} || exit 1"
+        }
+        echo "Smoke tests passed for ${env} environment."
+    } catch (Exception e) {
+        echo "Smoke tests failed for ${env} environment."
+        throw e
+    }
+}
+
+def runFunctionalTests(env, port) {
+    try {
+        if (isUnix()) {
+            sh "curl -f http://localhost:${port}/assets || exit 1" 
+        } else {
+            bat "curl -f http://localhost:${port}/assets || exit 1"
+        }
+        echo "Functional tests passed for ${env} environment."
+    } catch (Exception e) {
+        echo "Functional tests failed for ${env} environment."
+        throw e
+    }
+}
+
+def runRegressionTests(env, port) {
+    try {
+        def jsonData = """{
+            "name": "Test Laptop",
+            "deviceType": "Laptop",
+            "status": "Active",
+            "location": "Test Location",
+            "assignedTo": "Test User",
+            "purchaseDate": "07-15-2024",
+            "warrantyExpiry": "07-15-2025"
+        }"""
+
+        if (isUnix()) {
+            sh """
+                curl -X POST -H "Content-Type: application/json" -d '${jsonData}' http://localhost:${port}/assets || exit 1
+                curl -f http://localhost:${port}/assets || exit 1
+            """
+        } else {
+            bat """
+                curl -X POST -H "Content-Type: application/json" -d "${jsonData}" http://localhost:${port}/assets || exit 1
+                curl -f http://localhost/${port}/assets || exit 1
+            """
+        }
+        echo "Regression tests passed for ${env} environment."
+    } catch (Exception e) {
+        echo "Regression tests failed for ${env} environment."
+        throw e
+    }
+}
+
+def runSanityTests(env, port) {
+    try {
+        if (isUnix()) {
+            sh "curl -f http://localhost:${port}/ || exit 1"
+        } else {
+            bat "curl -f http://localhost:${port}/ || exit 1"
+        }
+        echo "Sanity tests passed for ${env} environment."
+    } catch (Exception e) {
+        echo "Sanity tests failed for ${env} environment."
+        throw e
     }
 }

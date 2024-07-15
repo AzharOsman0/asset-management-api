@@ -135,7 +135,7 @@ def deploy(env, repo, buildId, port) {
 }
 
 def runSmokeTests(env, port) {
-    
+    def endpoint = "/assets/health"
     try {
         if (isUnix()) {
             sh "curl -f http://localhost:${port}${endpoint} || exit 1"

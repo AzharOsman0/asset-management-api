@@ -23,6 +23,13 @@ public class AssetController {
   @Autowired //This automatically injects the AssetRepository bean into the class providing an instance of AssetRepository so you can interact with the database
   private AssetRepository assetRepository;
   
+  
+  @GetMapping("/health")
+  public ResponseEntity<String> health() {
+      return new ResponseEntity<>("API Status", HttpStatus.OK);
+  }
+  
+  
   @PostMapping // Post request
   public ResponseEntity<Asset> registerAsset(@RequestBody Asset asset) {
     try {

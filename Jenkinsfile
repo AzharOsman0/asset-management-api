@@ -68,12 +68,12 @@ pipeline {
         stage('Deploy to Dev') {
             steps {
                 script {
-                    deploy('dev', env.DOCKER_HUB_REPO, env.BUILD_ID, 8081)
+                    deploy('dev', env.DOCKER_HUB_REPO, env.BUILD_ID, 8081, 8080)
                 }
             }
         }
 
-        stage('Run Tests in Dev Environment') {
+        stage('Run Smoke Tests') {
             steps {
                 script {
                     runSmokeTests('dev', 8081)
@@ -84,7 +84,7 @@ pipeline {
         stage('Deploy to Test') {
             steps {
                 script {
-                    deploy('test', env.DOCKER_HUB_REPO, env.BUILD_ID, 8082)
+                    deploy('test', env.DOCKER_HUB_REPO, env.BUILD_ID, 8082, 8080)
                 }
             }
         }
@@ -102,12 +102,12 @@ pipeline {
         stage('Deploy to Prod') {
             steps {
                 script {
-                    deploy('prod', env.DOCKER_HUB_REPO, env.BUILD_ID, 8083)
+                    deploy('prod', env.DOCKER_HUB_REPO, env.BUILD_ID, 8083, 8080)
                 }
             }
         }
 
-        stage('Run Tests in Prod Environment') {
+        stage('Run Sanity Tests in Prod Environment') {
             steps {
                 script {
                     runSmokeTests('prod', 8083)
@@ -145,13 +145,13 @@ pipeline {
     }
 }
 
-def deploy(env, repo, buildId, port) {
+def deploy(env, repo, buildId, hostPort, containerPort) {
     if (isUnix()) {
         sh "docker rm -f asset-management-api-${env} || true"
-        sh "docker run -d --name asset-management-api-${env} -p ${port}:${port} ${repo}:${buildId}"
+        sh "docker run -d --name asset-management-api-${env} -p ${hostPort}:${containerPort} ${repo}:${buildId}"
     } else {
         bat "docker rm -f asset-management-api-${env} || exit 0"
-        bat "docker run -d --name asset-management-api-${env} -p ${port}:${port} ${repo}:${buildId}"
+        bat "docker run -d --name asset-management-api-${env} -p ${hostPort}:${containerPort} ${repo}:${buildId}"
     }
 }
 

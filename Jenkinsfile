@@ -99,11 +99,10 @@ pipeline {
             echo 'Build or tests failed!'
         }
     }
-    def deploy(env) {
+}
+def deploy(env) {
     sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
     sh "docker run -d --name asset-management-api-${env} -p 8080:8080 asset-management-api:${env.BUILD_ID}"
     }
-}
-
 
 

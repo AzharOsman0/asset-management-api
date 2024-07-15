@@ -56,7 +56,7 @@ pipeline {
         stage('Deploy to Dev') {
             steps {
                 script {
-                    deploy('dev')
+                    deploy('dev', env.DOCKER_HUB_REPO, env.BUILD_ID)
                 }
             }
         }
@@ -64,20 +64,18 @@ pipeline {
         stage('Deploy to Test') {
             steps {
                 script {
-                    deploy('test')
+                    deploy('test', env.DOCKER_HUB_REPO, env.BUILD_ID)
                 }
             }
         }
-
 
         stage('Deploy to Prod') {
             steps {
                 script {
-                    deploy('prod')
+                    deploy('prod', env.DOCKER_HUB_REPO, env.BUILD_ID)
                 }
             }
         }
-
 
         stage('Publish to Artifactory') {
             steps {
@@ -108,12 +106,12 @@ pipeline {
     }
 }
 
-def deploy(env) {
+def deploy(env, repo, buildId) {
     if (isUnix()) {
         sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
-        sh "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
+        sh "docker run -d --name asset-management-api-${env} -p 8080:8080 ${repo}:${buildId}"
     } else {
         bat "docker stop asset-management-api-${env} || exit 0 && docker rm asset-management-api-${env} || exit 0"
-        bat "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
+        bat "docker run -d --name asset-management-api-${env} -p 8080:8080 ${repo}:${buildId}"
     }
 }

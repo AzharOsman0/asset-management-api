@@ -69,6 +69,13 @@ pipeline {
             steps {
                 script {
                     deploy('dev', env.DOCKER_HUB_REPO, env.BUILD_ID, 8081)
+                }
+            }
+        }
+
+        stage('Run Tests in Dev Environment') {
+            steps {
+                script {
                     runSmokeTests('dev', 8081)
                 }
             }
@@ -78,6 +85,13 @@ pipeline {
             steps {
                 script {
                     deploy('test', env.DOCKER_HUB_REPO, env.BUILD_ID, 8082)
+                }
+            }
+        }
+
+        stage('Run Tests in Test Environment') {
+            steps {
+                script {
                     runSmokeTests('test', 8082)
                     runFunctionalTests('test', 8082)
                     runRegressionTests('test', 8082)
@@ -89,6 +103,13 @@ pipeline {
             steps {
                 script {
                     deploy('prod', env.DOCKER_HUB_REPO, env.BUILD_ID, 8083)
+                }
+            }
+        }
+
+        stage('Run Tests in Prod Environment') {
+            steps {
+                script {
                     runSmokeTests('prod', 8083)
                     runSanityTests('prod', 8083)
                 }
@@ -135,12 +156,11 @@ def deploy(env, repo, buildId, port) {
 }
 
 def runSmokeTests(env, port) {
-    def endpoint = "/assets/health"
     try {
         if (isUnix()) {
-            sh "curl -f http://localhost:${port}${endpoint} || exit 1"
+            sh "curl -f http://localhost:${port}/health || exit 1"
         } else {
-            bat "curl -f http://localhost:${port}${endpoint} || exit 1"
+            bat "curl -f http://localhost:${port}/health || exit 1"
         }
         echo "Smoke tests passed for ${env} environment."
     } catch (Exception e) {
@@ -183,7 +203,7 @@ def runRegressionTests(env, port) {
         } else {
             bat """
                 curl -X POST -H "Content-Type: application/json" -d "${jsonData}" http://localhost:${port}/assets || exit 1
-                curl -f http://localhost/${port}/assets || exit 1
+                curl -f http://localhost:${port}/assets || exit 1
             """
         }
         echo "Regression tests passed for ${env} environment."

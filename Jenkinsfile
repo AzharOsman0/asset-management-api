@@ -109,15 +109,11 @@ pipeline {
 }
 
 def deploy(env) {
-    sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
-    sh "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
-}
-
-def testEnvironment(env) {
-    // Add your testing logic here, e.g., run integration tests
-    try {
-        sh "curl -f http://localhost:8080/assets"
-    } catch (Exception e) {
-        error("Tests failed in ${env} environment")
+    if (isUnix()) {
+        sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
+        sh "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
+    } else {
+        bat "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
+        bat "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
     }
 }

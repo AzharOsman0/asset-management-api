@@ -1,22 +1,25 @@
 pipeline {
     agent any
 
-
     tools {
         maven 'Maven 3.9.7'
     }
 
+    environment {
+        DOCKER_HUB_REPO = "azharosman2002/asset-api"
+        DOCKER_CREDENTIALS_ID = "dockerhub-credentials"
+    }
 
     stages {
         stage('Checkout Code') {
             steps {
-                checkout([$class: 'GitSCM',
+                checkout([$class: 'GitSCM', 
                           branches: [[name: '*/main']],
                           userRemoteConfigs: [[url: 'https://github.com/AzharOsman0/asset-management-api.git', credentialsId: '6f61d0a7-5ceb-4a19-a9bd-abbc821f603e']]
                 ])
             }
         }
-       
+        
         stage('Set up JDK 17') {
             environment {
                 JAVA_HOME = tool name: 'JDK 17', type: 'hudson.model.JDK'
@@ -26,52 +29,57 @@ pipeline {
                 bat 'java -version'
             }
         }
-       
+        
         stage('Build with Maven') {
             steps {
                 bat 'mvn clean install'
             }
         }
-       
+        
         stage('Run Unit Tests') {
             steps {
                 bat 'mvn test'
             }
         }
 
-
-        stage('Build docker Image'){
-            steps{
-                script{
-                    def app = docker.build("my-app:${env.BUILD_ID}")
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', env.DOCKER_CREDENTIALS_ID) {
+                        def app = docker.build("${env.DOCKER_HUB_REPO}:${env.BUILD_ID}")
+                        app.push()
+                    }
                 }
             }
         }
-        stage('Deploy to Dev'){
-            steps{
-                script{
+        
+        stage('Deploy to Dev') {
+            steps {
+                script {
                     deploy('dev')
                 }
             }
         }
-    
-        stage('Deploy to Test'){
-            steps{
-                script{
+
+        stage('Deploy to Test') {
+            steps {
+                script {
                     deploy('test')
                 }
             }
         }
- 
-        stage('Deploy to Prod'){
-            steps{
-                script{
+
+
+        stage('Deploy to Prod') {
+            steps {
+                script {
                     deploy('prod')
                 }
             }
         }
 
-         stage('Publish to Artifactory') {
+
+        stage('Publish to Artifactory') {
             steps {
                 script {
                     def server = Artifactory.server 'jfrog-artifactory'
@@ -87,7 +95,6 @@ pipeline {
         }
     }
 
-
     post {
         always {
             junit 'target/surefire-reports/*.xml'
@@ -100,9 +107,17 @@ pipeline {
         }
     }
 }
+
 def deploy(env) {
     sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
-    sh "docker run -d --name asset-management-api-${env} -p 8080:8080 asset-management-api:${env.BUILD_ID}"
+    sh "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
+}
+
+def testEnvironment(env) {
+    // Add your testing logic here, e.g., run integration tests
+    try {
+        sh "curl -f http://localhost:8080/assets"
+    } catch (Exception e) {
+        error("Tests failed in ${env} environment")
     }
-
-
+}

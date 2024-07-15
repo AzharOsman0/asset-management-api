@@ -113,7 +113,7 @@ def deploy(env) {
         sh "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
         sh "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
     } else {
-        bat "docker stop asset-management-api-${env} || true && docker rm asset-management-api-${env} || true"
+        bat "docker stop asset-management-api-${env} || exit 0 && docker rm asset-management-api-${env} || exit 0"
         bat "docker run -d --name asset-management-api-${env} -p 8080:8080 ${env.DOCKER_HUB_REPO}:${env.BUILD_ID}"
     }
 }

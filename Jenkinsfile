@@ -76,6 +76,7 @@ pipeline {
         stage('Run Smoke Tests') {
             steps {
                 script {
+                    waitForServer('dev', 8081)
                     runSmokeTests('dev', 8081)
                 }
             }
@@ -92,6 +93,7 @@ pipeline {
         stage('Run Tests in Test Environment') {
             steps {
                 script {
+                    waitForServer('test', 8082)
                     runSmokeTests('test', 8082)
                     runFunctionalTests('test', 8082)
                     runRegressionTests('test', 8082)
@@ -110,6 +112,7 @@ pipeline {
         stage('Run Sanity Tests in Prod Environment') {
             steps {
                 script {
+                    waitForServer('prod', 8083)
                     runSmokeTests('prod', 8083)
                     runSanityTests('prod', 8083)
                 }
@@ -153,6 +156,28 @@ def deploy(env, repo, buildId, hostPort, containerPort) {
         bat "docker rm -f asset-management-api-${env} || exit 0"
         bat "docker run -d --name asset-management-api-${env} -p ${hostPort}:${containerPort} ${repo}:${buildId}"
     }
+}
+
+def waitForServer(env, port) {
+    def endpoint = "/assets/health"
+    def maxRetries = 10
+    def sleepTime = 5 // seconds
+
+    for (int i = 0; i < maxRetries; i++) {
+        try {
+            if (isUnix()) {
+                sh "curl -f http://localhost:${port}${endpoint} || exit 1"
+            } else {
+                bat "curl -f http://localhost:${port}${endpoint} || exit 1"
+            }
+            echo "Server is up for ${env} environment."
+            return
+        } catch (Exception e) {
+            echo "Server is not up yet for ${env} environment. Retrying in ${sleepTime} seconds..."
+            sleep sleepTime
+        }
+    }
+    error "Server did not start within ${maxRetries * sleepTime} seconds for ${env} environment."
 }
 
 def runSmokeTests(env, port) {

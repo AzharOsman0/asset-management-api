@@ -210,7 +210,7 @@ def runFunctionalTests(env, port) {
         if (isUnix()) {
             sh "curl -X POST -H 'Content-Type: application/json' -d '${jsonData}' http://localhost:${port}/assets || exit 1"
         } else {
-            bat "curl -X POST -H \"Content-Type: application/json\" -d \"${jsonData}\" http://localhost:${port}/assets || exit 1"
+            bat 'curl -X POST -H "Content-Type: application/json" -d "{\\"name\\": \\"Functional Test Laptop\\", \\"deviceType\\": \\"Laptop\\", \\"status\\": \\"Active\\", \\"location\\": \\"Functional Test Location\\", \\"assignedTo\\": \\"Functional Test User\\", \\"purchaseDate\\": \\"07-15-2024\\", \\"warrantyExpiry\\": \\"07-15-2025\\"}" http://localhost:${port}/assets || exit 1'
         }
 
         // Test GET /assets/{id}
@@ -227,7 +227,7 @@ def runFunctionalTests(env, port) {
         if (isUnix()) {
             sh "curl -X PUT -H 'Content-Type: application/json' -d '${updateData}' http://localhost:${port}/assets/${assetId} || exit 1"
         } else {
-            bat "curl -X PUT -H \"Content-Type: application/json\" -d \"${updateData}\" http://localhost:${port}/assets/${assetId} || exit 1"
+            bat 'curl -X PUT -H "Content-Type: application/json" -d "{\\"name\\": \\"Updated Functional Test Laptop\\", \\"deviceType\\": \\"Laptop\\", \\"status\\": \\"Active\\", \\"location\\": \\"Updated Functional Test Location\\", \\"assignedTo\\": \\"Updated Functional Test User\\", \\"purchaseDate\\": \\"07-15-2024\\", \\"warrantyExpiry\\": \\"07-15-2025\\"}" http://localhost:${port}/assets/${assetId} || exit 1'
         }
 
         // Test DELETE /assets/{id} (if applicable)
@@ -246,7 +246,7 @@ def runFunctionalTests(env, port) {
 
 def runRegressionTests(env, port) {
     try {
-        def jsonData = '{"name": "Test Laptop", "deviceType": "Laptop", "status": "Active", "location": "Test Location", "assignedTo": "Test User", "purchaseDate": "07-15-2024", "warrantyExpiry": "07-15-2025"}'
+        def jsonData = '''{"name": "Test Laptop", "deviceType": "Laptop", "status": "Active", "location": "Test Location", "assignedTo": "Test User", "purchaseDate": "07-15-2024", "warrantyExpiry": "07-15-2025"}'''
 
         if (isUnix()) {
             sh """
@@ -254,10 +254,10 @@ def runRegressionTests(env, port) {
                 curl -f http://localhost:${port}/assets || exit 1
             """
         } else {
-            bat """
-                curl -X POST -H "Content-Type: application/json" -d "${jsonData}" http://localhost:${port}/assets || exit 1
+            bat '''
+                curl -X POST -H "Content-Type: application/json" -d "{\\"name\\": \\"Test Laptop\\", \\"deviceType\\": \\"Laptop\\", \\"status\\": \\"Active\\", \\"location\\": \\"Test Location\\", \\"assignedTo\\": \\"Test User\\", \\"purchaseDate\\": \\"07-15-2024\\", \\"warrantyExpiry\\": \\"07-15-2025\\"}" http://localhost:${port}/assets || exit 1
                 curl -f http://localhost:${port}/assets || exit 1
-            """
+            '''
         }
         echo "Regression tests passed for ${env} environment."
     } catch (Exception e) {

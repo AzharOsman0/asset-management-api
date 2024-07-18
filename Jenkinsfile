@@ -73,7 +73,7 @@ pipeline {
             }
         }
 
-        stage('Run Smoke Tests') {
+        stage('Run Tests in Dev Environment') {
             steps {
                 script {
                     waitForServer('dev', 8081)
@@ -109,7 +109,7 @@ pipeline {
             }
         }
 
-        stage('Run Sanity Tests in Prod Environment') {
+        stage('Run Tests in Prod Environment') {
             steps {
                 script {
                     waitForServer('prod', 8083)
@@ -197,11 +197,62 @@ def runSmokeTests(env, port) {
 
 def runFunctionalTests(env, port) {
     try {
+        // Test GET /assets
         if (isUnix()) {
-            sh "curl -f http://localhost:${port}/assets || exit 1" 
+            sh "curl -f http://localhost:${port}/assets || exit 1"
         } else {
             bat "curl -f http://localhost:${port}/assets || exit 1"
         }
+
+        // Test POST /assets
+        def jsonData = """{
+            "name": "Functional Test Laptop",
+            "deviceType": "Laptop",
+            "status": "Active",
+            "location": "Functional Test Location",
+            "assignedTo": "Functional Test User",
+            "purchaseDate": "07-15-2024",
+            "warrantyExpiry": "07-15-2025"
+        }"""
+
+        if (isUnix()) {
+            sh "curl -X POST -H \"Content-Type: application/json\" -d '${jsonData}' http://localhost:${port}/assets || exit 1"
+        } else {
+            bat "curl -X POST -H \"Content-Type: application/json\" -d \"${jsonData}\" http://localhost:${port}/assets || exit 1"
+        }
+
+        // Test GET /assets/{id}
+        def assetId = 1
+        if (isUnix()) {
+            sh "curl -f http://localhost:${port}/assets/${assetId} || exit 1"
+        } else {
+            bat "curl -f http://localhost/${port}/assets/${assetId} || exit 1"
+        }
+
+        // Test PUT /assets/{id}
+        def updateData = """{
+            "name": "Updated Functional Test Laptop",
+            "deviceType": "Laptop",
+            "status": "Active",
+            "location": "Updated Functional Test Location",
+            "assignedTo": "Updated Functional Test User",
+            "purchaseDate": "07-15-2024",
+            "warrantyExpiry": "07-15-2025"
+        }"""
+
+        if (isUnix()) {
+            sh "curl -X PUT -H \"Content-Type: application/json\" -d '${updateData}' http://localhost:${port}/assets/${assetId} || exit 1"
+        } else {
+            bat "curl -X PUT -H \"Content-Type: application/json\" -d \"${updateData}\" http://localhost:${port}/assets/${assetId} || exit 1"
+        }
+
+        // Test DELETE /assets/{id} (if applicable)
+        if (isUnix()) {
+            sh "curl -X DELETE -f http://localhost:${port}/assets/${assetId} || exit 1"
+        } else {
+            bat "curl -X DELETE -f http://localhost/${port}/assets/${assetId} || exit 1"
+        }
+
         echo "Functional tests passed for ${env} environment."
     } catch (Exception e) {
         echo "Functional tests failed for ${env} environment."
@@ -240,11 +291,12 @@ def runRegressionTests(env, port) {
 }
 
 def runSanityTests(env, port) {
+    def endpoint = "/assets/health"
     try {
         if (isUnix()) {
-            sh "curl -f http://localhost:${port}/ || exit 1"
+            sh "curl -f http://localhost:${port}${endpoint} || exit 1"
         } else {
-            bat "curl -f http://localhost:${port}/ || exit 1"
+            bat "curl -f http://localhost:${port}${endpoint} || exit 1"
         }
         echo "Sanity tests passed for ${env} environment."
     } catch (Exception e) {

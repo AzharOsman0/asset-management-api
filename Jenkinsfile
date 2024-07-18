@@ -205,18 +205,18 @@ def runFunctionalTests(env, port) {
         }
 
         // Test POST /assets
-        def jsonData = """{
-            "name": "Functional Test Laptop",
-            "deviceType": "Laptop",
-            "status": "Active",
-            "location": "Functional Test Location",
-            "assignedTo": "Functional Test User",
-            "purchaseDate": "07-15-2024",
+        def jsonData = '''{
+            "name": "Functional Test Laptop", 
+            "deviceType": "Laptop", 
+            "status": "Active", 
+            "location": "Functional Test Location", 
+            "assignedTo": "Functional Test User", 
+            "purchaseDate": "07-15-2024", 
             "warrantyExpiry": "07-15-2025"
-        }"""
+            }'''
 
         if (isUnix()) {
-            sh "curl -X POST -H \"Content-Type: application/json\" -d '${jsonData}' http://localhost:${port}/assets || exit 1"
+            sh "curl -X POST -H 'Content-Type: application/json' -d '${jsonData}' http://localhost:${port}/assets || exit 1"
         } else {
             bat "curl -X POST -H \"Content-Type: application/json\" -d \"${jsonData}\" http://localhost:${port}/assets || exit 1"
         }
@@ -226,22 +226,22 @@ def runFunctionalTests(env, port) {
         if (isUnix()) {
             sh "curl -f http://localhost:${port}/assets/${assetId} || exit 1"
         } else {
-            bat "curl -f http://localhost/${port}/assets/${assetId} || exit 1"
+            bat "curl -f http://localhost:${port}/assets/${assetId} || exit 1"
         }
 
         // Test PUT /assets/{id}
-        def updateData = """{
-            "name": "Updated Functional Test Laptop",
-            "deviceType": "Laptop",
-            "status": "Active",
-            "location": "Updated Functional Test Location",
-            "assignedTo": "Updated Functional Test User",
-            "purchaseDate": "07-15-2024",
-            "warrantyExpiry": "07-15-2025"
-        }"""
+        def updateData = '''{
+        "name": "Updated Functional Test Laptop", 
+        "deviceType": "Laptop", 
+        "status": "Active", 
+        "location": "Updated Functional Test Location", 
+        "assignedTo": "Updated Functional Test User", 
+        "purchaseDate": "07-15-2024", 
+        "warrantyExpiry": "07-15-2025"
+        }'''
 
         if (isUnix()) {
-            sh "curl -X PUT -H \"Content-Type: application/json\" -d '${updateData}' http://localhost:${port}/assets/${assetId} || exit 1"
+            sh "curl -X PUT -H 'Content-Type: application/json' -d '${updateData}' http://localhost:${port}/assets/${assetId} || exit 1"
         } else {
             bat "curl -X PUT -H \"Content-Type: application/json\" -d \"${updateData}\" http://localhost:${port}/assets/${assetId} || exit 1"
         }
@@ -250,7 +250,7 @@ def runFunctionalTests(env, port) {
         if (isUnix()) {
             sh "curl -X DELETE -f http://localhost:${port}/assets/${assetId} || exit 1"
         } else {
-            bat "curl -X DELETE -f http://localhost/${port}/assets/${assetId} || exit 1"
+            bat "curl -X DELETE -f http://localhost:${port}/assets/${assetId} || exit 1"
         }
 
         echo "Functional tests passed for ${env} environment."

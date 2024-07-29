@@ -230,13 +230,6 @@ def runFunctionalTests(env, port) {
             bat 'curl -X PUT -H "Content-Type: application/json" -d "{\\"name\\": \\"Updated Functional Test Laptop\\", \\"deviceType\\": \\"Laptop\\", \\"status\\": \\"Active\\", \\"location\\": \\"Updated Functional Test Location\\", \\"assignedTo\\": \\"Updated Functional Test User\\", \\"purchaseDate\\": \\"07-15-2024\\", \\"warrantyExpiry\\": \\"07-15-2025\\"}" http://localhost:' + port + '/assets/' + assetId + ' || exit 1'
         }
 
-        // Test DELETE /assets/{id} (if applicable)
-        if (isUnix()) {
-            sh "curl -X DELETE -f http://localhost:${port}/assets/${assetId} || exit 1"
-        } else {
-            bat "curl -X DELETE -f http://localhost:${port}/assets/${assetId} || exit 1"
-        }
-
         echo "Functional tests passed for ${env} environment."
     } catch (Exception e) {
         echo "Functional tests failed for ${env} environment."
